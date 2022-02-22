@@ -1,0 +1,19 @@
+---
+version: '3'
+
+services:
+  kitchen-sensor:
+    image: jcostom/sensorem:latest
+    container_name: kitchen-sensor
+    restart: unless-stopped
+    environment:
+      TZ: America/New_York
+      APIKEY: <my-switchbot-api-key>
+      DEVID: <my-switchbot-device-id>
+      sleepTime: 300
+      influxBucket: <my-InfluxDB-2.x-Bucket-Name>
+      influxOrg: <my-InfluxDB-2.x-Org-Name>
+      influxToken: <my-InfluxDB-2.x-Token>
+      influxURL: 'http://<my-influxDB-server:8086/'
+      influxMeasurementName: kitchen
+    network_mode: bridge
