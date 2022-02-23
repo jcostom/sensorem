@@ -2,8 +2,6 @@ FROM python:slim
 
 ENV TZ=America/New_York
 
-RUN /usr/local/bin/python -m pip install --upgrade pip
-
 RUN \
     pip3 install requests \
     && pip3 install influxdb-client \
