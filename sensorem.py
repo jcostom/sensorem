@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import os
-import time
+import logging
 import requests
+from time import sleep
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
@@ -14,6 +15,25 @@ influxOrg = os.getenv('influxOrg')
 influxToken = os.getenv('influxToken')
 influxURL = os.getenv('influxURL')
 influxMeasurementName = os.getenv('influxMeasurementName')
+DEBUG = int(os.getenv('DEBUG', 0))
+
+VER = '1.8'
+USER_AGENT = "/".join(['sensorem.py', VER])
+
+# Setup logger
+logger = logging.getLogger()
+ch = logging.StreamHandler()
+if DEBUG:
+    logger.setLevel(logging.DEBUG)
+    ch.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.INFO)
+    ch.setLevel(logging.INFO)
+
+formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s',
+                              datefmt='[%d %b %Y %H:%M:%S %Z]')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 
 def c2f(celsius):
@@ -27,12 +47,8 @@ def readSensor(sbURL, sbHeaders):
             r.json()['body']['humidity'])
 
 
-def writeLogEntry(message, status):
-    print(time.strftime("[%d %b %Y %H:%M:%S %Z]", time.localtime())
-          + " {}: {}".format(message, status))
-
-
 def main():
+    logger.info("Startup: {}".format(USER_AGENT))
     url = "/".join(
         ("https://api.switch-bot.com/v1.0/devices",
          DEVID,
@@ -54,7 +70,7 @@ def main():
             }
         ]
         write_api.write(bucket=influxBucket, record=record)
-        time.sleep(sleepTime)
+        sleep(sleepTime)
 
 
 if __name__ == "__main__":
