@@ -17,7 +17,7 @@ influxURL = os.getenv('influxURL')
 influxMeasurementName = os.getenv('influxMeasurementName')
 DEBUG = int(os.getenv('DEBUG', 0))
 
-VER = '1.8'
+VER = '1.9'
 USER_AGENT = "/".join(['sensorem.py', VER])
 
 # Setup logger
@@ -48,7 +48,7 @@ def readSensor(sbURL, sbHeaders):
 
 
 def main():
-    logger.info("Startup: {}".format(USER_AGENT))
+    logger.info(f"Startup: {USER_AGENT}")
     url = "/".join(
         ("https://api.switch-bot.com/v1.0/devices",
          DEVID,
