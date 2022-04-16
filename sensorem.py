@@ -17,7 +17,7 @@ INFLUX_URL = os.getenv('INFLUX_URL')
 INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
 DEBUG = int(os.getenv('DEBUG', 0))
 
-VER = '1.10'
+VER = '1.11'
 USER_AGENT = f"sensorem.py/{VER}"
 
 # Setup logger
@@ -40,7 +40,7 @@ def c2f(celsius):
     return (celsius * 9/5) + 32
 
 
-def read_sensor(switchbot_url, switchbot_headers):
+def read_sensor(switchbot_url: str, switchbot_headers: str) -> list:
     r = requests.get(switchbot_url, headers=switchbot_headers)
     # return array of (deg_f, rel_hum)
     return [round(c2f(r.json()['body']['temperature']), 1),
