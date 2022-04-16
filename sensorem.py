@@ -40,7 +40,7 @@ def c2f(celsius):
     return (celsius * 9/5) + 32
 
 
-def read_sensor(switchbot_url: str, switchbot_headers: str) -> list:
+def read_sensor(switchbot_url: str, switchbot_headers: dict) -> list:
     r = requests.get(switchbot_url, headers=switchbot_headers)
     # return array of (deg_f, rel_hum)
     return [round(c2f(r.json()['body']['temperature']), 1),
