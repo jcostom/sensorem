@@ -17,7 +17,7 @@ INFLUX_URL = os.getenv('INFLUX_URL')
 INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
 DEBUG = int(os.getenv('DEBUG', 0))
 
-VER = '1.11'
+VER = '1.12'
 USER_AGENT = f"sensorem.py/{VER}"
 
 # Setup logger
