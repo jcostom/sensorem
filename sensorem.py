@@ -7,6 +7,8 @@ from time import sleep
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+# --- To be passed in to container ---
+# Mandatory Vars
 APIKEY = os.getenv('APIKEY')
 DEVID = os.getenv('DEVID')
 SLEEPTIME = int(os.getenv('SLEEPTIME', 300))
@@ -15,9 +17,12 @@ INFLUX_ORG = os.getenv('INFLUX_ORG')
 INFLUX_TOKEN = os.getenv('INFLUX_TOKEN')
 INFLUX_URL = os.getenv('INFLUX_URL')
 INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
+
+# Optional Vars
 DEBUG = int(os.getenv('DEBUG', 0))
 
-VER = '1.12.1'
+# --- Other Globals ---
+VER = '1.13'
 USER_AGENT = f"sensorem.py/{VER}"
 
 # Setup logger
@@ -47,7 +52,7 @@ def read_sensor(switchbot_url: str, switchbot_headers: dict) -> list:
             r.json()['body']['humidity']]
 
 
-def main():
+def main() -> None:
     logger.info(f"Startup: {USER_AGENT}")
     url = f"https://api.switch-bot.com/v1.0/devices/{DEVID}/status"
     headers = {'Authorization': APIKEY}
