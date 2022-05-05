@@ -1,6 +1,6 @@
 FROM python:slim
 
-ENV TZ=America/New_York
+ARG TZ=America/New_York
 
 RUN \
     pip install requests \

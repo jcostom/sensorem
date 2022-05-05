@@ -22,7 +22,7 @@ INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
 DEBUG = int(os.getenv('DEBUG', 0))
 
 # --- Other Globals ---
-VER = '1.13'
+VER = '1.14'
 USER_AGENT = f"sensorem.py/{VER}"
 
 # Setup logger
@@ -41,23 +41,21 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-def c2f(celsius):
+def c2f(celsius: float) -> float:
     return (celsius * 9/5) + 32
 
 
 def read_sensor(switchbot_url: str, switchbot_headers: dict) -> list:
     r = requests.get(switchbot_url, headers=switchbot_headers)
     # return array of (deg_f, rel_hum)
-    return [round(c2f(r.json()['body']['temperature']), 1),
-            r.json()['body']['humidity']]
+    return [round(c2f(r.json()['body']['temperature']), 1), r.json()['body']['humidity']]  # noqa: E501
 
 
 def main() -> None:
     logger.info(f"Startup: {USER_AGENT}")
     url = f"https://api.switch-bot.com/v1.0/devices/{DEVID}/status"
     headers = {'Authorization': APIKEY}
-    influxClient = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN,
-                                  org=INFLUX_ORG)
+    influxClient = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)  # noqa: E501
     write_api = influxClient.write_api(write_options=SYNCHRONOUS)
     while True:
         (deg_f, rel_hum) = read_sensor(url, headers)
