@@ -3,13 +3,17 @@
 import os
 import logging
 import requests
-from time import sleep
+from hashlib import sha256
+import hmac
+from base64 import b64encode
+from time import sleep, time
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 # --- To be passed in to container ---
 # Mandatory Vars
-APIKEY = os.getenv('APIKEY')
+TOKEN = os.getenv('TOKEN')
+SECRET = os.getenv('SECRET')
 DEVID = os.getenv('DEVID')
 SLEEPTIME = int(os.getenv('SLEEPTIME', 300))
 INFLUX_BUCKET = os.getenv('INFLUX_BUCKET')
@@ -22,7 +26,7 @@ INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
 DEBUG = int(os.getenv('DEBUG', 0))
 
 # --- Other Globals ---
-VER = '1.16'
+VER = '2.0'
 USER_AGENT = f"sensorem.py/{VER}"
 
 # Setup logger
@@ -45,20 +49,35 @@ def c2f(celsius: float) -> float:
     return (celsius * 9/5) + 32
 
 
-def read_sensor(switchbot_url: str, switchbot_headers: dict) -> list:
-    r = requests.get(switchbot_url, headers=switchbot_headers)
-    # return array of (deg_f, rel_hum)
+def build_headers(secret: str, token: str) -> dict:
+    nonce = ''
+    t = int(round(time() * 1000))
+    string_to_sign = f'{token}{t}{nonce}'
+    b_string_to_sign = bytes(string_to_sign, 'utf-8')
+    b_secret = bytes(secret, 'utf-8')
+    sign = b64encode(hmac.new(b_secret, msg=b_string_to_sign, digestmod=sha256).digest())  # noqa: E501
+    headers = {
+        'Authorization': token,
+        't': str(t),
+        'sign': sign,
+        'nonce': nonce
+    }
+    return headers
+
+
+def read_sensor(devid: str, secret: str, token: str) -> list:
+    url = f'https://api.switch-bot.com/v1.1/devices/{devid}/status'
+    headers = build_headers(secret, token)
+    r = requests.get(url, headers=headers)
     return [round(c2f(r.json()['body']['temperature']), 1), r.json()['body']['humidity']]  # noqa: E501
 
 
 def main() -> None:
     logger.info(f"Startup: {USER_AGENT}")
-    url = f"https://api.switch-bot.com/v1.0/devices/{DEVID}/status"
-    headers = {'Authorization': APIKEY}
     influxClient = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)  # noqa: E501
     write_api = influxClient.write_api(write_options=SYNCHRONOUS)
     while True:
-        (deg_f, rel_hum) = read_sensor(url, headers)
+        (deg_f, rel_hum) = read_sensor(DEVID, SECRET, TOKEN)
         record = [
             {
                 "measurement": INFLUX_MEASUREMENT_NAME,
