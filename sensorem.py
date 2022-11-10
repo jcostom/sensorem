@@ -26,8 +26,9 @@ INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
 DEBUG = int(os.getenv('DEBUG', 0))
 
 # --- Other Globals ---
-VER = '2.0'
+VER = '2.1'
 USER_AGENT = f"sensorem.py/{VER}"
+URL = 'https://api.switch-bot.com/v1.1/devices/{}/status'
 
 # Setup logger
 logger = logging.getLogger()
@@ -65,8 +66,12 @@ def build_headers(secret: str, token: str) -> dict:
     return headers
 
 
+def build_url(url_template: str, devid: str) -> str:
+    return url_template.format(devid)
+
+
 def read_sensor(devid: str, secret: str, token: str) -> list:
-    url = f'https://api.switch-bot.com/v1.1/devices/{devid}/status'
+    url = build_url(URL, devid)
     headers = build_headers(secret, token)
     r = requests.get(url, headers=headers)
     return [round(c2f(r.json()['body']['temperature']), 1), r.json()['body']['humidity']]  # noqa: E501
