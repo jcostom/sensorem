@@ -3,10 +3,11 @@
 import os
 import logging
 import requests
+import secrets
 from hashlib import sha256
 import hmac
 from base64 import b64encode
-from time import sleep, time
+import time
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
@@ -26,7 +27,7 @@ INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
 DEBUG = int(os.getenv('DEBUG', 0))
 
 # --- Other Globals ---
-VER = '2.1.1'
+VER = '2.2'
 USER_AGENT = f"sensorem.py/{VER}"
 URL = 'https://api.switch-bot.com/v1.1/devices/{}/status'
 
@@ -51,8 +52,8 @@ def c2f(celsius: float) -> float:
 
 
 def build_headers(secret: str, token: str) -> dict:
-    nonce = ''
-    t = int(round(time() * 1000))
+    nonce = secrets.token_urlsafe()
+    t = int(round(time.time() * 1000))
     string_to_sign = f'{token}{t}{nonce}'
     b_string_to_sign = bytes(string_to_sign, 'utf-8')
     b_secret = bytes(secret, 'utf-8')
@@ -93,7 +94,7 @@ def main() -> None:
             }
         ]
         write_api.write(bucket=INFLUX_BUCKET, record=record)
-        sleep(SLEEPTIME)
+        time.sleep(SLEEPTIME)
 
 
 if __name__ == "__main__":
