@@ -45,7 +45,7 @@ jobs:
             type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'main') }}
             type=pep440,pattern={{version}}
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           platforms: linux/amd64,linux/arm64
