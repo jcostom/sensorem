@@ -27,7 +27,7 @@ INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
 DEBUG = int(os.getenv('DEBUG', 0))
 
 # --- Other Globals ---
-VER = '2.2.3'
+VER = '2.2.5'
 USER_AGENT = f"sensorem.py/{VER}"
 URL = 'https://api.switch-bot.com/v1.1/devices/{}/status'
 
