@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import json
 import logging
 import requests
 import secrets
@@ -13,21 +14,14 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 # --- To be passed in to container ---
 # Mandatory Vars
-TOKEN = os.getenv('TOKEN')
-SECRET = os.getenv('SECRET')
-DEVID = os.getenv('DEVID')
-SLEEPTIME = int(os.getenv('SLEEPTIME', 300))
-INFLUX_BUCKET = os.getenv('INFLUX_BUCKET')
-INFLUX_ORG = os.getenv('INFLUX_ORG')
-INFLUX_TOKEN = os.getenv('INFLUX_TOKEN')
-INFLUX_URL = os.getenv('INFLUX_URL')
-INFLUX_MEASUREMENT_NAME = os.getenv('INFLUX_MEASUREMENT_NAME')
+TZ = os.getenv('TOKEN', 'America/New_York')
+CONFIG = os.getenv('CONFIG', '/config/config.json')
 
 # Optional Vars
 DEBUG = int(os.getenv('DEBUG', 0))
 
 # --- Other Globals ---
-VER = '2.2.5'
+VER = '3.0'
 USER_AGENT = f"sensorem.py/{VER}"
 URL = 'https://api.switch-bot.com/v1.1/devices/{}/status'
 
@@ -80,21 +74,24 @@ def read_sensor(devid: str, secret: str, token: str) -> list:
 
 def main() -> None:
     logger.info(f"Startup: {USER_AGENT}")
-    influxClient = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)  # noqa: E501
+    with open(CONFIG, 'r') as f:
+        myconfig = json.load(f)
+    influxClient = InfluxDBClient(url=myconfig['config']['influx_url'], token=myconfig['config']['influx_token'], org=myconfig['config']['influx_org'])  # noqa: E501
     write_api = influxClient.write_api(write_options=SYNCHRONOUS)
     while True:
-        (deg_f, rel_hum) = read_sensor(DEVID, SECRET, TOKEN)
-        record = [
-            {
-                "measurement": INFLUX_MEASUREMENT_NAME,
-                "fields": {
-                    "degF": deg_f,
-                    "rH": rel_hum
+        for sensor in myconfig['sensors']:
+            (deg_f, rel_hum) = read_sensor(myconfig['sensors'][sensor]['devid'], myconfig['config']['switchbot_secret'], myconfig['config']['switchbot_token'])  # noqa: E501
+            record = [
+                {
+                    "measurement": sensor,
+                    "fields": {
+                        "degF": deg_f,
+                        "rH": rel_hum
+                    }
                 }
-            }
-        ]
-        write_api.write(bucket=INFLUX_BUCKET, record=record)
-        time.sleep(SLEEPTIME)
+            ]
+            write_api.write(bucket=myconfig['config']['influx_bucket'], record=record)  # noqa: E501
+        time.sleep(myconfig['config']['sleeptime'])
 
 
 if __name__ == "__main__":

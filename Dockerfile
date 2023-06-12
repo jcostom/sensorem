@@ -1,6 +1,8 @@
-FROM python:3.11.3-slim-bullseye
+FROM python:3.11.4-slim-bullseye
 
 ARG TZ=America/New_York
+
+VOLUME [ "/config" ]
 
 RUN \
     pip install requests \
