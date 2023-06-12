@@ -80,7 +80,7 @@ def main() -> None:
     write_api = influxClient.write_api(write_options=SYNCHRONOUS)
     while True:
         for sensor in myconfig['sensors']:
-            (deg_f, rel_hum) = read_sensor(myconfig['sensors'][sensor]['devid'])  # noqa: E501
+            (deg_f, rel_hum) = read_sensor(myconfig['sensors'][sensor]['devid'], myconfig['config']['switchbot_secret'], myconfig['config']['switchbot_token'])  # noqa: E501
             record = [
                 {
                     "measurement": sensor,
