@@ -21,7 +21,7 @@ CONFIG = os.getenv('CONFIG', '/config/config.json')
 DEBUG = int(os.getenv('DEBUG', 0))
 
 # --- Other Globals ---
-VER = '3.0-dev'
+VER = '3.0'
 USER_AGENT = f"sensorem.py/{VER}"
 URL = 'https://api.switch-bot.com/v1.1/devices/{}/status'
 
