@@ -1,0 +1,22 @@
+{
+    "config": {
+        "sleeptime": 300,
+        "influx_bucket": "your-influx-bucket-name",
+        "influx_org": "your-influx-org-name",
+        "influx_token": "your-influx-token",
+        "influx_url": "http://influxdb:8086",
+        "switchbot_token": "your-switchbot-token",
+        "switchbot_secret": "your-switchbot-secret"
+    },
+    "sensors": {
+        "sensor1": {
+            "devid": "id1"
+        },
+        "sensor2": {
+            "devid": "id2"
+        },
+        "sensor3": {
+            "devid": "id3"
+        }
+    }
+}
