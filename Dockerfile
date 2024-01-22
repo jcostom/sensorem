@@ -1,13 +1,21 @@
-FROM python:3.11.7-slim-bookworm
+FROM python:3.12.1-slim-bookworm AS builder
 
 ARG TZ=America/New_York
-
-VOLUME [ "/config" ]
-
+RUN apt update && apt -yq install gcc make
 RUN \
     pip install requests \
     && pip install influxdb-client \
     && pip cache purge
+
+
+FROM python:3.12.1-slim-bookworm
+
+ARG TZ=America/New_York
+ARG PYVER=3.12
+
+VOLUME [ "/config" ]
+
+COPY --from=builder /usr/local/lib/python$PYVER/site-packages/ /usr/local/lib/python$PYVER/site-packages/
 
 RUN mkdir /app
 COPY ./sensorem.py /app
