@@ -1,4 +1,4 @@
-FROM python:3.13.2-slim-bookworm AS builder
+FROM python:3.13.3-slim-bookworm AS builder
 
 ARG TZ=America/New_York
 RUN apt update && apt -yq install gcc make
@@ -8,7 +8,7 @@ RUN \
     && pip cache purge
 
 
-FROM python:3.13.2-slim-bookworm
+FROM python:3.13.3-slim-bookworm
 
 ARG TZ=America/New_York
 ARG PYVER=3.13
